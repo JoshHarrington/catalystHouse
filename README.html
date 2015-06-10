@@ -1,0 +1,95 @@
+<h1 id="starter-kit">Starter-kit</h1>
+<p>Place to begin with web projects with lots of useful bits already setup</p>
+<h4 id="credits-">Credits:</h4>
+<ul>
+<li>Based on the <a href="https://html5boilerplate.com/">HTML Boilerplate project</a>  </li>
+<li>Using the Guardian <a href="https://github.com/guardian/sass-mq">sass-mq project</a>  </li>
+<li>JS Structure developed by <a href="http://www.grantmorrison.net/">Grant Morrison</a> whilst working at <a href="http://www.readingroom.com/">Reading Room</a></li>
+</ul>
+<h3 id="the-component-concept-">The Component Concept:</h3>
+<p>Ideally you should be trying to split your styling down based on the component that it&#39;s related to, if it&#39;s not related to the styling of a component then styling should go into main.scss in styles/scss/core</p>
+<hr>
+<h3 id="useful-scss-bits-to-remember">Useful SCSS bits to remember</h3>
+<pre><code class="lang-css">&amp;     /// inherit the name of the thing above
+
+/// scss example
+
+.class-name {
+    &amp;.state {
+        // new state styling
+        background: blue;
+    }
+    &amp;:hover, &amp;:focus {
+        // hover and focus styling
+        background: red;
+    }
+}
+
+/// css output
+
+.class-name.state {
+  background: blue;
+}
+.class-name:hover, .class-name:focus {
+  background: red;
+}
+</code></pre>
+<p>//</p>
+<pre><code class="lang-css">*     /// Apply styling to all elements
+</code></pre>
+<p>//</p>
+<pre><code class="lang-css">* + * /// Lobotomised owl selector
+</code></pre>
+<p>^^ [<a href="http://alistapart.com/article/axiomatic-css-and-lobotomized-owls">http://alistapart.com/article/axiomatic-css-and-lobotomized-owls</a>]</p>
+<p>//</p>
+<pre><code class="lang-css">div &gt; a 
+/// Select element right inside container
+/// so here we would be styling all anchor tags directly inside divs
+</code></pre>
+<p>Example markup:</p>
+<pre><code class="lang-html">&lt;div&gt;
+    &lt;a href=&quot;#na&quot;&gt;Hi there&lt;/a&gt; /// styling applied here
+    &lt;p&gt;
+        &lt;a href=&quot;#na&quot;&gt;Hello again&lt;/a&gt; /// but not here
+    &lt;/p&gt; 
+&lt;/div&gt;
+</code></pre>
+<p>//</p>
+<p><a href="http://thesassway.com/beginner/the-inception-rule">Inception rule</a> -- don’t go nest your scss more than four levels</p>
+<p>//</p>
+<pre><code class="lang-css">%container {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 2em;
+    max-width: 60em;
+    * {
+        max-width: 100%;
+    }
+}
+</code></pre>
+<p>^^ Useful method for:</p>
+<ul>
+<li>Ensuring content remains in central column</li>
+<li>Keep padding either side of content</li>
+<li>Constraint max width of content</li>
+<li>Stopping internal elements stretching past the width of the parent</li>
+</ul>
+<p>N.B.<br>Must be used with box-sizing: border-box;<br>Use @extend to put styling on wrapper  </p>
+<hr>
+<h3 id="box-sizing-border-box-">Box-sizing: border-box;</h3>
+<p>Box-sizing issues will likely cause you a ton of headaches
+usually it will make sense to set all box-sizing on the page to border-box
+meaning that all borders and padding only fill inside the constraints of the box and don&#39;t increase it&#39;s width:<br>[<a href="http://css-tricks.com/box-sizing/">http://css-tricks.com/box-sizing/</a>]<br>[<a href="http://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/">http://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/</a>]</p>
+<pre><code class="lang-css">html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+</code></pre>
+<hr>
+<h2 id="resources-">Resources:</h2>
+<p>[<a href="http://caniuse.com/">http://caniuse.com/</a>] -- really good for quickly checking whether that fancy thing you just found will work in ie8<br>[<a href="http://css-tricks.com/">http://css-tricks.com/</a>] -- Chris Coyier is the man<br>[<a href="http://codepen.io/">http://codepen.io/</a>] -- Some amazing examples of people doing stuff with HTML CSS and JS and an excellent way to present quick web ideas<br>[<a href="http://stackoverflow.com/">http://stackoverflow.com/</a>] -- you will live on here, great community of people asking and answering questions  </p>
+<p>[<a href="http://jquery.com/">http://jquery.com/</a>] -- this starter-kit already has jquery included, as you get more comfortable with javascript you&#39;ll start to discover how useful jquery can be</p>
+<p>[<a href="http://alistapart.com/">http://alistapart.com/</a>] -- interesting, useful articles on web tech<br>[<a href="https://prepros.io/">https://prepros.io/</a>] -- preprossing scss, js and md files // beware of the multiple requests to buy!</p>
