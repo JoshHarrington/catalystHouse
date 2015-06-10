@@ -1,0 +1,27 @@
+/// This is the place for all the styling that relates to component 1 and nothing else
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+article {
+    height: 100%;
+    &.hide {
+        display: none;
+    }
+}
+
+.main {
+    section {
+        min-height: 100vh;
+        width: 50%;
+        float: left;
+        padding: 2em;
+    }
+    .StaffScreen {
+//        border-right: 1px solid #222;
+        background-color: aqua;
+    }
+}
+                                                                                                                                                                                                                                                                                                                                                                                                                  
