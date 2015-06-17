@@ -9,29 +9,50 @@ var PAGE;
 
 var configState = 0;
 var nextKeyCodeIndex = 0;
+var validConfigKeyDown = 0;
 
 var triggers = [
     { 
-        name: "Bath water",
-        msgStaffOn: "The floor is wet", 
-        msgStaffOff: "The floor is dry",  
-        msgCustomerOn: "We'll be round shortly", 
-        msgCustomerOff: "Feedback stage", 
+        name: "Bathroom flooded",
+        msgStaffOn: "The floor in flat 2 is wet", 
+        msgStaffOff: "The floor in flat 2 is dry",  
+        msgCustomerOn: "The floor in flat 2 is wet. We'll be round shortly", 
+        msgCustomerOff: "The floor in flat 2 is dry again", 
         currentKeyState: 0, 
-        function: null, 
-        keyCode: -1
+        keyCode: -1,
+        affectsFlats: [ 1 ]
+    },
+    { 
+        name: "Top light off (RHS switch)",
+        msgStaffOn: "The light in flat 1 is broken", 
+        msgStaffOff: "The light in flat 1 is better",  
+        msgCustomerOn: "The light in flat 1 is broken. We'll be round shortly", 
+        msgCustomerOff: "The light in flat 1 is better", 
+        currentKeyState: 0, 
+        keyCode: -1,
+        affectsFlats: [ 0 ]
+    },
+    { 
+        name: "Main entrance light off (LHS switch)",
+        msgStaffOn: "The main entrance light is broken", 
+        msgStaffOff: "The main entrance light is better",  
+        msgCustomerOn: "The main entrance light is broken. We'll be round shortly", 
+        msgCustomerOff: "The main entrance light is better", 
+        currentKeyState: 0, 
+        keyCode: -1,
+        affectsFlats: [ 0, 1 ]
     }
 ];
 
 var EVENT = {
-  BATH_WATER: 0    
+    BATH_WATER: 0,
+    MAIN_ENTRANCE_LIGHT: 1,
+    FLAT_LIGHT: 2
 };
 
 (function($) {
     "use strict";
     PAGE = (function() {
-        
-        triggers[EVENT.BATH_WATER].function = triggerBathWater;
         
         function setupMakey() {
             
@@ -40,9 +61,9 @@ var EVENT = {
             displayNextTrigger();
         }
         
-        function displayNextTrigger(){
-            // do the bathtub stuff
-            $('.hello').html(triggers[nextKeyCodeIndex].name);
+        function displayNextTrigger(d){
+            // do the bathtub stuffn
+            $('.hello').html("Activate the " + triggers[nextKeyCodeIndex].name + " condition");
         }
         
         function activeKeyDown(unicode) {
@@ -59,11 +80,12 @@ var EVENT = {
             if (index != -1) {
                 if (triggers[index].currentKeyState != 1) {
                     triggers[index].currentKeyState = 1;
-                    triggers[index].function(false);
+                    triggerEvent(index, false);
                 }
             }
             
         }
+        
         function activeKeyUp(unicode) {
             // check key code index
             var index = -1;
@@ -78,47 +100,50 @@ var EVENT = {
             if (index != -1) {
                 if (triggers[index].currentKeyState != 0) {
                     triggers[index].currentKeyState = 0;
-                    triggers[index].function(true);
+                    triggerEvent(index, true);
                 }
             }
             
             
         }
         
-        function triggerBathWater(isUp) {
-//            console.log('trigger bath water');
-            sendStaffMessage(triggerBathWater, !isUp);
-            sendCustomerMessage(triggerBathWater, !isUp);
+        function triggerEvent(index, isUp) {
+            sendStaffMessage(index, !isUp);
+            for (var i = 0; i < triggers[index].affectsFlats.length; i++) {
+                sendCustomerMessage(index, triggers[index].affectsFlats[i], !isUp);
+            }
         }
         
-        function sendStaffMessage(caller, isOn){
-            for(var i = 0; i<triggers.length; i++) {
-                if (triggers[i].function == caller) {
-                    if (isOn){
-                        $('.main .StaffScreen ul').append('<li>'+ triggers[i].msgStaffOn +'</li>')
-                    } else {
-                        
-                        $('.main .StaffScreen ul').append('<li>'+ triggers[i].msgStaffOff +'</li>')
-                    }
-                }
+        function sendStaffMessage(index, isOn){
+            cleanList("StaffScreen");
+            if (isOn){
+                $('.main .StaffScreen ul').append('<li>'+ triggers[index].msgStaffOn +'</li>')
+            } else {
+
+                $('.main .StaffScreen ul').append('<li>'+ triggers[index].msgStaffOff +'</li>')
             }
         }
 
-        function sendCustomerMessage(caller, isOn){
-            for(var i = 0; i<triggers.length; i++) {
-                if (triggers[i].function == caller) {
-                    if (isOn){
-                        $('.main .endUserScreen ul').append('<li>'+ triggers[i].msgCustomerOn +'</li>')
-                    } else {
-                        
-                        $('.main .endUserScreen ul').append('<li>'+ triggers[i].msgCustomerOff +'</li>')
-                    }
-                }
+        function sendCustomerMessage(index, flatIndex, isOn){
+            cleanList("endUserScreen" + flatIndex);
+            if (isOn){
+                $('.main .endUserScreen' + flatIndex + ' ul').append('<li>'+ triggers[index].msgCustomerOn +'</li>')
+            } else {
+                $('.main .endUserScreen' + flatIndex + ' ul').append('<li>'+ triggers[index].msgCustomerOff +'</li>')
             }
         }
-
-
             
+        function cleanList(divName)
+        {
+        
+            //  if there are more than 10, remove the top one
+            var children = $('.main .' + divName + ' ul li');
+            
+            if (children.length >= 10) {
+                children.first().remove();
+            }
+        }
+        
             function keyDown(event){
                 var unicode=event.keyCode? event.keyCode : event.charCode;
                 keyProcessor(unicode, false); 
@@ -168,28 +193,31 @@ var EVENT = {
             
             function configKeyDown(keyCode) {
                 var found = -1;
-                for (var i = 0; i<triggers.length; i++){
-                    if (triggers[i].keyCode  == keyCode) {
+                for (var i = 0; i < triggers.length; i++){
+                    if (triggers[i].keyCode == keyCode) {
                         found = i;
                         break;
                     }
                 }
                 if (found == -1){
                     triggers[nextKeyCodeIndex].keyCode = keyCode;
-                    triggers[nextKeyCodeIndex].currentKeyState = 0;
-
+                    validConfigKeyDown = 1;
+            $('.hello').html("Deactivate the " + triggers[nextKeyCodeIndex].name + " condition");
                 }
             }
             function configKeyUp() {
-                nextKeyCodeIndex++;
-                if(nextKeyCodeIndex == triggers.length) {
-                    configState = 1;
-                    // turn off config screen
-                    $('.setup').addClass('hide');
-                    // turn on main screen
-                    $('.main').removeClass('hide');
-                } else {
-                    displayNextTrigger();
+                if (validConfigKeyDown == 1) {
+                    validConfigKeyDown = 0;
+                    nextKeyCodeIndex++;
+                    if(nextKeyCodeIndex == triggers.length) {
+                        configState = 1;
+                        // turn off config screen
+                        $('.setup').addClass('hide');
+                        // turn on main screen
+                        $('.main').removeClass('hide');
+                    } else {
+                        displayNextTrigger();
+                    }
                 }
             }
             

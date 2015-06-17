@@ -5,14 +5,19 @@
    
 <article class="main">
     <section class="StaffScreen">
-<!--        <div>Pipe broke in sector 3, alert level amber</div>-->
        <h2>Staff View</h2>
         <ul class="recentItems"></ul>
     </section>
     
-    <section class="endUserScreen">
-       <h2>Customer View</h2>
-<!--        <div class="message">There's a problem with the pipes, we're on it.</div>-->
+    <section class="endUserScreen0">
+       <h2>Customer View Flat 1</h2>
+       <div class="phone user1-flood"></div>
+   <ul></ul>
+    </section>
+
+    <section class="endUserScreen1">
+       <h2>Customer View Flat 2</h2>
+<!--       <div class="phone"></div>-->
    <ul></ul>
     </section>
 </article>
