@@ -7,27 +7,31 @@
 
 var PAGE;
 
-var keyCodes = [];
-var triggerNames = [
-    'Bath water'
-];
-var triggerFunctions = [];
-
 var configState = 0;
 var nextKeyCodeIndex = 0;
-var currentKeyStates = [];
-var triggerDescriptions = [
-    { msgStaffOn: "The floor is wet", msgStaffOff: "The floor is dry",  msgCustomerOn: "We'll be round shortly", msgCustomerOff: "Feedback stage"}
+
+var triggers = [
+    { 
+        name: "Bath water",
+        msgStaffOn: "The floor is wet", 
+        msgStaffOff: "The floor is dry",  
+        msgCustomerOn: "We'll be round shortly", 
+        msgCustomerOff: "Feedback stage", 
+        currentKeyState: 0, 
+        function: null, 
+        keyCode: -1
+    }
 ];
 
+var EVENT = {
+  BATH_WATER: 0    
+};
 
 (function($) {
     "use strict";
     PAGE = (function() {
         
-        var triggerFunctions = [
-            triggerBathWater
-        ];
+        triggers[EVENT.BATH_WATER].function = triggerBathWater;
         
         function setupMakey() {
             
@@ -38,25 +42,24 @@ var triggerDescriptions = [
         
         function displayNextTrigger(){
             // do the bathtub stuff
-            $('.hello').html(triggerNames[nextKeyCodeIndex]);
+            $('.hello').html(triggers[nextKeyCodeIndex].name);
         }
         
         function activeKeyDown(unicode) {
             // check key code index
-            
             var index = -1;
             
-            for (var i = 0; i<keyCodes.length; i++) {
-                if (keyCodes[i] == unicode){
+            for (var i = 0; i < triggers.length; i++) {
+                if (triggers[i].keyCode == unicode){
                     index = i;
                     break;
                 }
             }
             
             if (index != -1) {
-                if (currentKeyStates[index] != 1) {
-                    currentKeyStates[index] = 1;
-                    triggerFunctions[index](false);
+                if (triggers[index].currentKeyState != 1) {
+                    triggers[index].currentKeyState = 1;
+                    triggers[index].function(false);
                 }
             }
             
@@ -65,17 +68,17 @@ var triggerDescriptions = [
             // check key code index
             var index = -1;
             
-            for (var i = 0; i<keyCodes.length; i++) {
-                if (keyCodes[i] == unicode){
+            for (var i = 0; i < triggers.length; i++) {
+                if (triggers[i].keyCode == unicode){
                     index = i;
                     break;
                 }
             }
             
             if (index != -1) {
-                if (currentKeyStates[index] != 0) {
-                    currentKeyStates[index] = 0;
-                    triggerFunctions[index](true);
+                if (triggers[index].currentKeyState != 0) {
+                    triggers[index].currentKeyState = 0;
+                    triggers[index].function(true);
                 }
             }
             
@@ -89,36 +92,31 @@ var triggerDescriptions = [
         }
         
         function sendStaffMessage(caller, isOn){
-            for(var i = 0; i<triggerFunctions.length; i++) {
-                if (triggerFunctions[i] == caller) {
+            for(var i = 0; i<triggers.length; i++) {
+                if (triggers[i].function == caller) {
                     if (isOn){
-//                        triggerDescriptions[i].msgStaffOn;
-                        $('.main .StaffScreen ul').append('<li>'+ triggerDescriptions[i].msgStaffOn +'</li>')
+                        $('.main .StaffScreen ul').append('<li>'+ triggers[i].msgStaffOn +'</li>')
                     } else {
                         
-                        $('.main .StaffScreen ul').append('<li>'+ triggerDescriptions[i].msgStaffOff +'</li>')
+                        $('.main .StaffScreen ul').append('<li>'+ triggers[i].msgStaffOff +'</li>')
                     }
                 }
             }
         }
 
         function sendCustomerMessage(caller, isOn){
-            for(var i = 0; i<triggerFunctions.length; i++) {
-                if (triggerFunctions[i] == caller) {
+            for(var i = 0; i<triggers.length; i++) {
+                if (triggers[i].function == caller) {
                     if (isOn){
-//                        triggerDescriptions[i].msgStaffOn;
-                        $('.main .endUserScreen ul').append('<li>'+ triggerDescriptions[i].msgCustomerOn +'</li>')
+                        $('.main .endUserScreen ul').append('<li>'+ triggers[i].msgCustomerOn +'</li>')
                     } else {
                         
-                        $('.main .endUserScreen ul').append('<li>'+ triggerDescriptions[i].msgCustomerOff +'</li>')
+                        $('.main .endUserScreen ul').append('<li>'+ triggers[i].msgCustomerOff +'</li>')
                     }
                 }
             }
         }
 
-
-            
-//            document.onkeypress=detectKey;
 
             
             function keyDown(event){
@@ -169,22 +167,22 @@ var triggerDescriptions = [
             }
             
             function configKeyDown(keyCode) {
-                var found = false;
-                for (var i = 0; i<keyCodes.length; i++){
-                    if (keyCodes[i]  == keyCode) {
-                        found = true;
+                var found = -1;
+                for (var i = 0; i<triggers.length; i++){
+                    if (triggers[i].keyCode  == keyCode) {
+                        found = i;
                         break;
                     }
                 }
-                if (found == false){
-                    keyCodes.push(keyCode);
-                    currentKeyStates.push(0);
+                if (found == -1){
+                    triggers[nextKeyCodeIndex].keyCode = keyCode;
+                    triggers[nextKeyCodeIndex].currentKeyState = 0;
 
                 }
             }
             function configKeyUp() {
                 nextKeyCodeIndex++;
-                if(nextKeyCodeIndex == triggerFunctions.length) {
+                if(nextKeyCodeIndex == triggers.length) {
                     configState = 1;
                     // turn off config screen
                     $('.setup').addClass('hide');
