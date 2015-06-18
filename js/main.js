@@ -7,6 +7,8 @@
 
 var PAGE;
 
+var MESSAGE_TIME = 8000;
+
 var configState = 0;
 var nextKeyCodeIndex = 0;
 var validConfigKeyDown = 0;
@@ -18,6 +20,8 @@ var triggers = [
         msgStaffOff: "The floor in flat 2 is dry",  
         msgCustomerOn: "The floor in flat 2 is wet. We'll be round shortly", 
         msgCustomerOff: "The floor in flat 2 is dry again", 
+        msgCustomerOnClass: "user2-flood", 
+        msgCustomerOffClass: "user2-flood-fix", 
         currentKeyState: 0, 
         keyCode: -1,
         affectsFlats: [ 1 ]
@@ -28,6 +32,8 @@ var triggers = [
         msgStaffOff: "The light in flat 1 is better",  
         msgCustomerOn: "The light in flat 1 is broken. We'll be round shortly", 
         msgCustomerOff: "The light in flat 1 is better", 
+        msgCustomerOnClass: "user1-aptLight", 
+        msgCustomerOffClass: "user1-aptLight-fix", 
         currentKeyState: 0, 
         keyCode: -1,
         affectsFlats: [ 0 ]
@@ -38,6 +44,8 @@ var triggers = [
         msgStaffOff: "The main entrance light is better",  
         msgCustomerOn: "The main entrance light is broken. We'll be round shortly", 
         msgCustomerOff: "The main entrance light is better", 
+        msgCustomerOnClass: "foyerLight", 
+        msgCustomerOffClass: "foyerLight-fix", 
         currentKeyState: 0, 
         keyCode: -1,
         affectsFlats: [ 0, 1 ]
@@ -49,6 +57,18 @@ var EVENT = {
     MAIN_ENTRANCE_LIGHT: 1,
     FLAT_LIGHT: 2
 };
+
+var flatAlertTimestamps = [
+    0, 0
+];
+
+        function handleTimeout(flatIndex) {
+            if (new Date().getTime() >= flatAlertTimestamps[flatIndex]) {
+                var el = document.getElementById("endUserScreen" + flatIndex);
+                el.className = "phone";
+            }
+        }
+        
 
 (function($) {
     "use strict";
@@ -117,7 +137,7 @@ var EVENT = {
         function sendStaffMessage(index, isOn){
             cleanList("StaffScreen");
             if (isOn){
-                $('.main .StaffScreen ul').append('<li>'+ triggers[index].msgStaffOn +'</li>')
+                $('.main .StaffScreen ul').append('<li class="alert">'+ triggers[index].msgStaffOn +'</li>')
             } else {
 
                 $('.main .StaffScreen ul').append('<li>'+ triggers[index].msgStaffOff +'</li>')
@@ -127,10 +147,12 @@ var EVENT = {
         function sendCustomerMessage(index, flatIndex, isOn){
             cleanList("endUserScreen" + flatIndex);
             if (isOn){
-                $('.main .endUserScreen' + flatIndex + ' ul').append('<li>'+ triggers[index].msgCustomerOn +'</li>')
+                $('.main .endUserScreen' + flatIndex + ' .phone').removeClass().addClass('phone ' + triggers[index].msgCustomerOnClass);
             } else {
-                $('.main .endUserScreen' + flatIndex + ' ul').append('<li>'+ triggers[index].msgCustomerOff +'</li>')
+                $('.main .endUserScreen' + flatIndex + ' .phone').removeClass().addClass('phone ' + triggers[index].msgCustomerOffClass);
             }
+            flatAlertTimestamps[flatIndex] = new Date().getTime() + (MESSAGE_TIME - 100);
+            setTimeout("handleTimeout(" + flatIndex + ")", MESSAGE_TIME);
         }
             
         function cleanList(divName)
